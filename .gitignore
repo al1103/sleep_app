@@ -48,8 +48,7 @@ flutter_*.png
 *.env.g.dart
 
 # Platform-specific folders
-android/
-ios/
+
 macos/
 windows/
 web/
