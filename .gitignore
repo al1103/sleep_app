@@ -43,8 +43,8 @@ flutter_*.png
 *.g.dart
 *.gr.dart
 *.freezed.dart
-*.env
-*.env.g.dart
+# *.env
+# *.env.g.dart
 
 # Platform-specific folders
 

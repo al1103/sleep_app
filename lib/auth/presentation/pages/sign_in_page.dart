@@ -36,6 +36,7 @@ class SignInPage extends ConsumerWidget {
     final state = ref.read(authControllerProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFF141925),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -48,7 +49,7 @@ class SignInPage extends ConsumerWidget {
                   'Welcome Back',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: Colors.white,
                         fontSize: 24,
                       ),
                 ),
@@ -58,7 +59,7 @@ class SignInPage extends ConsumerWidget {
                     Text(
                       "Don't have an account? ",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
+                            color: Colors.grey[400],
                             fontSize: 14,
                           ),
                     ),
@@ -85,11 +86,12 @@ class SignInPage extends ConsumerWidget {
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: emailController,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Email address',
-                    hintStyle: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: const Color(0xFF1F2633),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -104,12 +106,13 @@ class SignInPage extends ConsumerWidget {
                     return TextFormField(
                       controller: passwordController,
                       obscureText: !isVisible,
+                      style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Password',
                         hintStyle:
-                            TextStyle(color: Colors.grey[600], fontSize: 16),
+                            TextStyle(color: Colors.grey[400], fontSize: 16),
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: const Color(0xFF1F2633),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -118,7 +121,7 @@ class SignInPage extends ConsumerWidget {
                         suffixIcon: IconButton(
                           icon: Icon(
                             isVisible ? Icons.visibility : Icons.visibility_off,
-                            color: Colors.grey[600],
+                            color: Colors.grey[400],
                           ),
                           onPressed: () {
                             isPasswordVisible.value = !isVisible;
@@ -142,7 +145,7 @@ class SignInPage extends ConsumerWidget {
                     child: Text(
                       'Recovery Password',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: Colors.grey[400],
                         fontSize: 14,
                       ),
                     ),
@@ -194,7 +197,7 @@ class SignInPage extends ConsumerWidget {
                   child: Text(
                     'or sign up with',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: Colors.grey[400],
                       fontSize: 14,
                     ),
                   ),
@@ -216,7 +219,7 @@ class SignInPage extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: Colors.grey[400],
                         fontSize: 14,
                       ),
                       children: const [
@@ -257,6 +260,7 @@ class SignInPage extends ConsumerWidget {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
         borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF1F2633),
       ),
       child: Center(
         child: SvgPicture.asset(
