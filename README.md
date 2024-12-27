@@ -191,3 +191,4 @@ Alternatively, run `flutter run` and code generation will take place automatical
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_cli_link]: https://github.com/VeryGoodOpenSource/very_good_cli
 # sleep_app
+flutter run -t lib/main_development.dart
