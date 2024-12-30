@@ -1,7 +1,7 @@
 // ai_controller.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sleep/features/messanger/domain/ai_repository_impl.dart';
 import 'package:sleep/features/messanger/domain/ai_response.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'ai_controller.g.dart';
 

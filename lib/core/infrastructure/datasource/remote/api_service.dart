@@ -3,12 +3,11 @@ import 'dart:async';
 import 'package:deep_pick/deep_pick.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleep/core/infrastructure/datasource/remote/api_exception.dart';
 import 'package:sleep/core/infrastructure/datasource/remote/status_code.dart';
 import 'package:sleep/env/env.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'api_service.g.dart';
 

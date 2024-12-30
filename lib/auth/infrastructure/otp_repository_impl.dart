@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sleep/auth/domain/otp_repository.dart';
-import 'package:sleep/core/infrastructure/datasource/remote/api_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sleep/auth/domain/otp_repository.dart';
+import 'package:sleep/core/infrastructure/datasource/remote/api_service.dart';
 
 part 'otp_repository_impl.g.dart';
 

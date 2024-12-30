@@ -1,9 +1,9 @@
 // ai_repository_impl.dart
 import 'package:deep_pick/deep_pick.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sleep/core/infrastructure/datasource/remote/api_service.dart';
 import 'package:sleep/features/messanger/domain/ai_repository.dart';
 import 'package:sleep/features/messanger/domain/ai_response.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'ai_repository_impl.g.dart';
 

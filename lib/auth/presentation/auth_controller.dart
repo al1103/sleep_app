@@ -1,7 +1,8 @@
-import 'package:sleep/auth/domain/auth.dart';
-import 'package:sleep/auth/infrastructure/auth_repository_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sleep/auth/domain/auth.dart';
+import 'package:sleep/auth/infrastructure/auth_repository_impl.dart';
+
 part 'auth_controller.g.dart';
 
 @riverpod

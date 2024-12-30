@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+
 import 'package:alarm/alarm.dart';
-import 'package:alarm/model/alarm_settings.dart';
-import 'package:alarm/model/notification_settings.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progressive_time_picker/progressive_time_picker.dart';
 import 'package:sleep/home/presentation/pages/base_navigation_bar.dart';
-import 'package:intl/intl.dart';
 
 @RoutePage()
 class HomePage extends ConsumerStatefulWidget {
@@ -27,35 +25,7 @@ class _HomePageState extends ConsumerState<HomePage>
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
   bool _isRecording = false;
-  bool _isPlaying = false;
   String? _filePath;
-  StreamSubscription? _playerSubscription;
-  Future<void> checkAndroidScheduleExactAlarmPermission() async {
-    final status = await Permission.scheduleExactAlarm.status;
-    print('Schedule exact alarm permission: $status.');
-    if (status.isDenied) {
-      print('Requesting schedule exact alarm permission...');
-      final res = await Permission.scheduleExactAlarm.request();
-      print(
-        'Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.',
-      );
-    }
-  }
-
-  final alarmSettings = AlarmSettings(
-    id: 42,
-    dateTime: DateTime.now(),
-    assetAudioPath: 'assets/alarm.mp3',
-    volume: 0.8,
-    fadeDuration: 3,
-    warningNotificationOnKill: Platform.isIOS,
-    notificationSettings: const NotificationSettings(
-      title: 'This is the title',
-      body: 'This is the body',
-      stopButton: 'Stop the alarm',
-      icon: 'notification_icon',
-    ),
-  );
 
   ClockTimeFormat clockTimeFormat = ClockTimeFormat.twentyFourHours;
   ClockIncrementTimeFormat clockIncrementTimeFormat =
@@ -68,12 +38,24 @@ class _HomePageState extends ConsumerState<HomePage>
   double sleepGoal = 8;
   bool isSleepGoal = false;
   bool? validRange = true;
+  bool _isSetAlarm = false;
 
   @override
   void initState() {
     super.initState();
     _initializeRecorder();
     _initializePlayer();
+    _initializeAlarm();
+  }
+
+  Future<void> _initializeAlarm() async {
+    await Alarm.init();
+  }
+
+  Future<bool> _fileExists(String filePath) async {
+    final file = File(filePath);
+    print(file);
+    return file.exists();
   }
 
   Future<void> _initializeRecorder() async {
@@ -120,55 +102,78 @@ class _HomePageState extends ConsumerState<HomePage>
       setState(() {
         _isRecording = false;
       });
+      print(await _fileExists(_filePath!));
+
+      if (_filePath != null) {
+        final exists = await _fileExists(_filePath!);
+        if (exists) {
+          debugPrint('Recording saved successfully at $_filePath');
+        } else {
+          debugPrint('Recording file not found at $_filePath');
+        }
+      }
     } catch (e) {
       debugPrint('Error stopping recording: $e');
     }
   }
 
-  Future<void> _startPlaying() async {
-    try {
-      if (!_player.isOpen()) {
-        await _player.openPlayer();
-      }
-      await _player.startPlayer(
-        fromURI: _filePath,
-        whenFinished: () {
-          setState(() {
-            _isPlaying = false;
-          });
-        },
-      );
-      _playerSubscription = _player.onProgress!.listen((e) {
-        final date =
-            DateTime.fromMillisecondsSinceEpoch(e.position.inMilliseconds);
-        final txt = DateFormat('mm:ss:SS', 'en_US').format(date);
-        setState(() {
-          _isPlaying = true;
-          // Update UI with the current position
-        });
-      });
-    } catch (e) {
-      debugPrint('Error starting playback: $e');
+  void _setAlarm() {
+    final now = DateTime.now();
+    var alarmTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      outBedTime.h,
+      outBedTime.m,
+    );
+    final bedTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      inBedTime.h,
+      inBedTime.m,
+    );
+    // If the alarm time is in the past, set it for the next day
+    if (alarmTime.isBefore(now) || bedTime.isAtSameMomentAs(now)) {
+      alarmTime = alarmTime.add(const Duration(days: 1));
     }
+
+    final alarmSettings = AlarmSettings(
+      id: 42,
+      dateTime: alarmTime,
+      assetAudioPath: 'assets/alarm.mp3',
+      volume: 1,
+      fadeDuration: 3,
+      warningNotificationOnKill: Platform.isIOS,
+      notificationSettings: const NotificationSettings(
+        title: 'This is the title',
+        body: 'This is the body',
+        stopButton: 'Stop the alarm',
+        icon: 'notification_icon',
+      ),
+    );
+
+    // Đặt báo thức
+    Alarm.set(alarmSettings: alarmSettings).then((_) {
+      setState(() {
+        _isSetAlarm = true;
+      });
+      debugPrint('Alarm set successfully');
+    });
   }
 
-  Future<void> _stopPlaying() async {
-    try {
-      await _player.stopPlayer();
-      await _playerSubscription?.cancel();
-      setState(() {
-        _isPlaying = false;
-      });
-    } catch (e) {
-      debugPrint('Error stopping playback: $e');
-    }
+  Future<void> _cancelAlarm() async {
+    await Alarm.stop(42);
+    setState(() {
+      _isSetAlarm = false;
+    });
+    debugPrint('Alarm canceled');
   }
 
   @override
   void dispose() {
     _recorder.closeRecorder();
     _player.closePlayer();
-    _playerSubscription?.cancel();
     super.dispose();
   }
 
@@ -205,7 +210,6 @@ class _HomePageState extends ConsumerState<HomePage>
           width: 260,
           onSelectionChange: _updateLabels,
           onSelectionEnd: (start, end, isDisableRange) => debugPrint(
-            // ignore: lines_longer_than_80_chars
             'onSelectionEnd => init : ${start.h}:${start.m}, end : ${end.h}:${end.m}, isDisableRange: $isDisableRange',
           ),
           primarySectors: clockTimeFormat.value,
@@ -262,7 +266,6 @@ class _HomePageState extends ConsumerState<HomePage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  // ignore: lines_longer_than_80_chars
                   '${NumberFormat('00').format(intervalBedTime.h)}Hr ${NumberFormat('00').format(intervalBedTime.m)}Min',
                   style: TextStyle(
                     fontSize: 12,
@@ -291,7 +294,6 @@ class _HomePageState extends ConsumerState<HomePage>
         ),
         const SizedBox(height: 16),
         Text(
-          // ignore: lines_longer_than_80_chars
           '${NumberFormat('00').format(inBedTime.h)}:${NumberFormat('00').format(inBedTime.m)} - ${NumberFormat('00').format(outBedTime.h)}:${NumberFormat('00').format(outBedTime.m)}',
           style: const TextStyle(
             color: Color(0xFF3CDAF7),
@@ -369,8 +371,8 @@ class _HomePageState extends ConsumerState<HomePage>
                           m: time.minute,
                         );
                         inBedTime = PickedTime(
-                          h: (time.hour - 8) % 24,
-                          m: time.minute,
+                          h: DateTime.now().hour,
+                          m: DateTime.now().minute,
                         );
                         intervalBedTime = formatIntervalTime(
                           init: inBedTime,
@@ -436,16 +438,13 @@ class _HomePageState extends ConsumerState<HomePage>
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          // onPressed: _isPlaying ? _stopPlaying : _startPlaying,
-          onPressed: () async {
-            await Alarm.set(alarmSettings: alarmSettings);
-          },
+          onPressed: _isSetAlarm ? _cancelAlarm : _setAlarm,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1F2633),
             fixedSize: const Size(200, 50),
           ),
           child: Text(
-            _isPlaying ? 'Stop Playing' : 'Start Playing',
+            _isSetAlarm ? 'Stop Alarm' : 'Set Alarm',
             style: const TextStyle(
               color: Color(0xFF3CDAF7),
               fontSize: 18,
@@ -477,20 +476,4 @@ class _HomePageState extends ConsumerState<HomePage>
       validRange = isDisableRange;
     });
   }
-}
-
-Widget cycletime(
-  DateTime timeStart,
-  DateTime timeEnd,
-) {
-  final duration = timeEnd.difference(timeStart);
-  final cycle = ((duration.inMinutes - 15) / 90).floor();
-  return Text(
-    '$cycle',
-    style: const TextStyle(
-      color: Color(0xFF3CDAF7),
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-    ),
-  );
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:sleep/auth/infrastructure/otp_repository_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sleep/auth/infrastructure/otp_repository_impl.dart';
 
 part 'verification_otp_controller.g.dart';
 

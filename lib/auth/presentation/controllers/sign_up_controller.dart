@@ -1,6 +1,6 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sleep/auth/domain/auth_register.dart';
 import 'package:sleep/auth/infrastructure/auth_register_repository_impl.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sign_up_controller.g.dart';
 

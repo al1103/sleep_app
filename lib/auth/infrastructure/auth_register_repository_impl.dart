@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleep/auth/domain/auth_register.dart';
 import 'package:sleep/auth/domain/auth_register_repository.dart';
 import 'package:sleep/core/infrastructure/datasource/remote/api_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'auth_register_repository_impl.g.dart';
 

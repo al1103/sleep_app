@@ -1,8 +1,8 @@
 import 'package:deep_pick/deep_pick.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sleep/core/infrastructure/datasource/remote/api_service.dart';
 import 'package:sleep/home/application/messages_users_repository.dart';
 import 'package:sleep/home/domain/messages_users.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'messages_users_repository_impl.g.dart';
 

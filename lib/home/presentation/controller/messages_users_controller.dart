@@ -1,6 +1,6 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sleep/home/domain/messages_users.dart';
 import 'package:sleep/home/infrastructure/messages_users_repository_impl.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'messages_users_controller.g.dart';
 

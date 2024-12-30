@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleep/shared/app_colors.dart';
 import 'package:sleep/shared/app_fonts.dart';
 import 'package:sleep/shared/application/shared_preferences_provider.dart';
 import 'package:sleep/shared/globals.dart';
 import 'package:sleep/shared/theme/text_styles.dart';
 import 'package:sleep/shared/theme/text_theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final appThemeProvider = StateNotifierProvider<AppThemeModeNotifier, ThemeMode>(
   (ref) {

@@ -5,6 +5,7 @@ part 'bottom_navigation_bar_controller.g.dart';
 
 @riverpod
 class BottomNavigationBarController extends _$BottomNavigationBarController {
+  @override
   BottomNavigationEnumType build() {
     return BottomNavigationEnumType.home;
   }
