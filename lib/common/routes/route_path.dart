@@ -10,8 +10,7 @@ class RoutePath {
 // Home
   static const String home = '/home';
 
-  static const String product = '/product';
+  static const String alarmRing = '/alarmRing';
 
-  static const String message = '/message';
-  static const String CallScreenRoute = '/CallScreenRoute';
+  static const String record = '/record';
 }

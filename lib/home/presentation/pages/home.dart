@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:alarm/alarm.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progressive_time_picker/progressive_time_picker.dart';
-import 'package:sleep/home/presentation/pages/base_navigation_bar.dart';
+import 'package:sleep/home/presentation/pages/widgets/base_navigation_bar.dart';
 
 @RoutePage()
 class HomePage extends ConsumerStatefulWidget {
@@ -22,6 +22,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage>
     with TickerProviderStateMixin {
+  final String _fileExtension = '.aac';
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
   bool _isRecording = false;
@@ -54,7 +55,6 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Future<bool> _fileExists(String filePath) async {
     final file = File(filePath);
-    print(file);
     return file.exists();
   }
 
@@ -102,12 +102,15 @@ class _HomePageState extends ConsumerState<HomePage>
       setState(() {
         _isRecording = false;
       });
-      print(await _fileExists(_filePath!));
 
       if (_filePath != null) {
         final exists = await _fileExists(_filePath!);
         if (exists) {
-          debugPrint('Recording saved successfully at $_filePath');
+          final directory = await getApplicationDocumentsDirectory();
+          final newFileName =
+              '${directory.path}/recordedFile_${DateTime.now().millisecondsSinceEpoch}$_fileExtension';
+          final newFile = await File(_filePath!).copy(newFileName);
+          debugPrint('Recording saved successfully at ${newFile.path}');
         } else {
           debugPrint('Recording file not found at $_filePath');
         }
@@ -179,23 +182,27 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF141925),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildTimePicker(),
-              _buildSleepInfo(),
-              _buildButtons(),
-            ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xFF141925),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildTimePicker(),
+                const SizedBox(height: 16),
+                _buildSleepInfo(),
+                const SizedBox(height: 16),
+                _buildButtons(),
+              ],
+            ),
           ),
         ),
+        bottomNavigationBar: const BaseNavigationBar(),
       ),
-      bottomNavigationBar: const BaseNavigationBar(),
     );
   }
 

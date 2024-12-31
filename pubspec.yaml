@@ -73,6 +73,8 @@ dependencies:
   flutter_slidable: ^3.1.2
   just_audio: ^0.9.42
   simple_ripple_animation: ^0.1.0
+  syncfusion_flutter_charts: ^28.1.37
+  flutter_ffmpeg: ^0.4.2
 
 dev_dependencies:
   auto_route_generator: ^9.0.0

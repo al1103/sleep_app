@@ -1,9 +1,11 @@
 import 'package:alarm/alarm.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
-class ExampleAlarmRingScreen extends StatelessWidget {
-  const ExampleAlarmRingScreen({super.key, required this.alarmSettings});
+@RoutePage()
+class AlarmRingPage extends StatelessWidget {
+  const AlarmRingPage({super.key, required this.alarmSettings});
   final AlarmSettings alarmSettings;
 
   @override

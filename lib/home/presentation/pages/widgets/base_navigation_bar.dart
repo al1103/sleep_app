@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sleep/home/presentation/controller/bottom_navigation_bar_controller.dart';
@@ -49,7 +50,9 @@ class BaseNavigationBar extends ConsumerWidget {
                         Icons.person,
                         color: Color.fromARGB(255, 255, 255, 255),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.router.pushNamed('/record');
+                      },
                     ),
                   ],
                 ),
