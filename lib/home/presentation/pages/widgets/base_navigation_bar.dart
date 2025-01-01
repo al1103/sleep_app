@@ -11,17 +11,10 @@ class BaseNavigationBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigateState = ref.watch(bottomNavigationBarControllerProvider);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: Color.fromARGB(255, 255, 255, 255),
-            width: 0.5,
-          ),
-        ),
-      ),
+      decoration: const BoxDecoration(),
       child: BottomAppBar(
         color: Colors.transparent,
-        height: 80,
+        height: 75,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,

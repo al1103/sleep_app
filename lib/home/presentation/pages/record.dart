@@ -1,10 +1,12 @@
 import 'dart:io' as io;
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 
+@RoutePage()
 class RecordPage extends ConsumerStatefulWidget {
   const RecordPage({super.key});
 
