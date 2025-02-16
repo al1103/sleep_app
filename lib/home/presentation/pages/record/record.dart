@@ -61,7 +61,6 @@ class _RecordPageState extends State<RecordPage> {
   // Biến trạng thái
   bool _isRecording = false;
   bool _isCurrentlyRecordingSound = false;
-  String? _activeRecordingStart;
   String? _currentFilePath;
   List<int> _audioBuffer = [];
 
@@ -95,8 +94,6 @@ class _RecordPageState extends State<RecordPage> {
 
     try {
       final samples = _bytesToSamples(chunk);
-
-      // Manage buffer size
       if (_audioBuffer.length > MAX_BUFFER_SIZE) {
         _audioBuffer = _audioBuffer.sublist(_audioBuffer.length - FFT_SIZE);
       }
@@ -105,17 +102,13 @@ class _RecordPageState extends State<RecordPage> {
       if (_audioBuffer.length >= FFT_SIZE) {
         final volume =
             _calculateRMS(_audioBuffer.sublist(_audioBuffer.length - FFT_SIZE));
-
         if (volume > 100.0) {
-          // Create data object for isolate
           final analysisData = AudioAnalysisData(
-            List<int>.from(_audioBuffer), // Create a copy
+            List<int>.from(_audioBuffer),
             volume,
           );
-
-          // Run analysis in isolate
-          final soundType = await compute(_analyzeAudioInIsolate, analysisData);
-
+          // Use the top-level function "analyzeAudio" to avoid capturing unsendable objects.
+          final soundType = await compute(analyzeAudio, analysisData);
           if (soundType != null && !_isCurrentlyRecordingSound && mounted) {
             setState(() => _isCurrentlyRecordingSound = true);
             await _startNewRecordingFile();
@@ -124,39 +117,6 @@ class _RecordPageState extends State<RecordPage> {
       }
     } catch (e) {
       debugPrint('Error processing chunk: $e');
-    }
-  }
-
-// Separate isolate function
-  Future<SleepSoundType?> _analyzeAudioInIsolate(AudioAnalysisData data) async {
-    try {
-      if (data.samples.length < FFT_SIZE) return null;
-
-      // Take most recent samples
-      final samples = data.samples.length > FFT_SIZE
-          ? data.samples.sublist(data.samples.length - FFT_SIZE)
-          : data.samples;
-
-      final magnitudes = await _computeFFT(samples);
-      if (magnitudes.isEmpty) return null;
-
-      final dominantFreq = _findDominantFrequency(magnitudes);
-
-      // Check patterns in parallel without Timer dependencies
-      final results = await Future.wait([
-        Future(() => _checkSnoringPattern(magnitudes)),
-        Future(() => _hasVoicePattern(magnitudes)),
-        Future(() => _checkBreathingPattern(magnitudes, dominantFreq))
-      ]);
-
-      if (results[0]) return SleepSoundType.snoring;
-      if (results[1]) return SleepSoundType.talking;
-      if (results[2]) return SleepSoundType.breathing;
-
-      return null;
-    } catch (e) {
-      debugPrint('Error in audio analysis: $e');
-      return null;
     }
   }
 
@@ -534,7 +494,6 @@ class _RecordPageState extends State<RecordPage> {
         _isRecording = false;
         _isCurrentlyRecordingSound = false;
         _currentFilePath = null;
-        _activeRecordingStart = null;
       });
 
       // Cancel any monitoring timer
@@ -1323,28 +1282,140 @@ bool _checkSnoringPattern(List<double> magnitudes) {
 
 // Add constant at file level
 const int SAMPLE_RATE = 16000;
+const int FFT_SIZE = 1024;
 
-bool _checkBreathingPattern(List<double> magnitudes, double dominantFreq) {
+// Top-level function for FFT computation (moved from _computeFFT)
+Future<List<double>> computeFFT(List<int> samples) async {
+  try {
+    final int n = math.min(samples.length, FFT_SIZE);
+    final List<double> magnitudes = List.filled(n ~/ 2, 0);
+    const int batchSize = 64;
+    for (int i = 0; i < n; i += batchSize) {
+      final int end = math.min(i + batchSize, n);
+      for (int j = i; j < end; j++) {
+        final window = 0.54 - 0.46 * math.cos(2 * math.pi * j / (n - 1));
+        magnitudes[j ~/ 2] += samples[j] * window;
+      }
+    }
+    return magnitudes;
+  } catch (e) {
+    debugPrint('Error computing FFT: $e');
+    return [];
+  }
+}
+
+// Top-level helper to find dominant frequency
+double findDominantFrequency(List<double> magnitudes) {
+  var maxIndex = 0;
+  double maxMagnitude = 0;
+  for (var i = 0; i < magnitudes.length; i++) {
+    if (magnitudes[i] > maxMagnitude) {
+      maxMagnitude = magnitudes[i];
+      maxIndex = i;
+    }
+  }
+  return maxIndex * (SAMPLE_RATE / (2 * magnitudes.length));
+}
+
+bool checkSnoringPattern(List<double> magnitudes) {
   try {
     // Calculate average magnitude
     final avgMagnitude = magnitudes.reduce((a, b) => a + b) / magnitudes.length;
+    int peakCount = 0;
+    final List<double> peakIntervals = [];
+    double lastPeakIndex = 0;
 
-    // Breathing characteristics
+    for (int i = 1; i < magnitudes.length - 1; i++) {
+      if (magnitudes[i] > avgMagnitude * 1.2 &&
+          magnitudes[i] > magnitudes[i - 1] &&
+          magnitudes[i] > magnitudes[i + 1]) {
+        if (lastPeakIndex > 0) {
+          peakIntervals.add(i - lastPeakIndex);
+        }
+        lastPeakIndex = i.toDouble();
+        peakCount++;
+      }
+    }
+
+    // Require at least 2 peaks and regular intervals (30% tolerance)
+    if (peakCount >= 2 && peakIntervals.isNotEmpty) {
+      final avgInterval =
+          peakIntervals.reduce((a, b) => a + b) / peakIntervals.length;
+      final regularPattern = peakIntervals.every(
+        (interval) => ((interval - avgInterval).abs() / avgInterval) < 0.3,
+      );
+      debugPrint(
+          'Snoring analysis: peakCount=$peakCount, regular=$regularPattern');
+      return regularPattern;
+    }
+    return false;
+  } catch (e) {
+    debugPrint('Error checking snoring pattern: $e');
+    return false;
+  }
+}
+
+bool hasVoicePattern(List<double> magnitudes) {
+  try {
+    double voiceEnergy = 0.0;
+    double totalEnergy = 0.0;
+    int formantPeaks = 0;
+
+    if (magnitudes.isEmpty) return false;
+
+    final avgMagnitude = magnitudes.reduce((a, b) => a + b) / magnitudes.length;
+
+    // Analyze each frequency bin
+    for (int i = 0; i < magnitudes.length; i++) {
+      final current = magnitudes[i];
+      // Calculate frequency for this bin
+      final freq = i * (SAMPLE_RATE / (2 * magnitudes.length));
+      totalEnergy += current;
+
+      // Consider voice frequencies (300-3400 Hz) with a slight boost above average
+      if (freq >= 300 && freq <= 3400 && current > avgMagnitude * 1.1) {
+        voiceEnergy += current;
+        if (i > 0 &&
+            i < magnitudes.length - 1 &&
+            current > magnitudes[i - 1] &&
+            current > magnitudes[i + 1]) {
+          formantPeaks++;
+        }
+      }
+    }
+
+    if (totalEnergy == 0) return false;
+
+    final voiceRatio = voiceEnergy / totalEnergy;
+    debugPrint(
+        'Voice analysis: voiceRatio=$voiceRatio, formantPeaks=$formantPeaks');
+
+    // Determine if voice energy is high enough and enough peaks (formant candidates) exist
+    return voiceRatio > 0.4 && formantPeaks >= 3;
+  } catch (e) {
+    debugPrint('Error in voice pattern detection: $e');
+    return false;
+  }
+}
+
+bool checkBreathingPattern(List<double> magnitudes, double dominantFreq) {
+  try {
+    final avgMagnitude = magnitudes.reduce((a, b) => a + b) / magnitudes.length;
     int breathCycles = 0;
-    bool wasUp = false;
+    final List<double> peakIntervals = [];
     double lastPeakTime = 0;
-    final peakIntervals = <double>[];
 
-    // Typical breathing rate is 12-20 breaths per minute
-    // So we expect peaks every 3-5 seconds
+    // Typical breathing rate is 12-20 breaths per minute, so intervals around 3-5 seconds
     const double minBreathInterval = 2.5; // seconds
     const double maxBreathInterval = 5.5; // seconds
 
-    for (var i = 1; i < magnitudes.length - 1; i++) {
+    // Use the FFT bins as time markers (simulation)
+    for (int i = 1; i < magnitudes.length - 1; i++) {
+      // Approximate time corresponding to the current index
       final timePoint = i * (SAMPLE_RATE / (2 * magnitudes.length));
 
-      // Look for gentle peaks characteristic of breathing
-      if (magnitudes[i] > avgMagnitude * 1.1 && // Lower threshold for breathing
+      // Look for gentle peaks characteristic of breathing sounds
+      if (magnitudes[i] > avgMagnitude * 1.1 &&
           magnitudes[i] > magnitudes[i - 1] &&
           magnitudes[i] > magnitudes[i + 1]) {
         if (lastPeakTime > 0) {
@@ -1353,40 +1424,55 @@ bool _checkBreathingPattern(List<double> magnitudes, double dominantFreq) {
             peakIntervals.add(interval);
           }
         }
-
         lastPeakTime = timePoint;
         breathCycles++;
-        wasUp = true;
-      } else if (wasUp && magnitudes[i] < avgMagnitude * 0.9) {
-        wasUp = false;
       }
     }
 
-    // Check if the pattern matches breathing characteristics
     if (breathCycles >= 2 && peakIntervals.isNotEmpty) {
-      // Calculate average interval between peaks
       final avgInterval =
           peakIntervals.reduce((a, b) => a + b) / peakIntervals.length;
-
-      // Check if intervals are regular (within 20% tolerance)
       final regularPattern = peakIntervals.every(
-          (interval) => (interval - avgInterval).abs() / avgInterval < 0.2);
+        (interval) => ((interval - avgInterval).abs() / avgInterval) < 0.2,
+      );
+      // Dominant frequency for breathing is typically very low (0.2-0.5 Hz)
+      final frequencyOk = dominantFreq >= 0.2 && dominantFreq <= 0.5;
 
-      // Check if dominant frequency is in breathing range (0.2-0.5 Hz)
-      final inFrequencyRange = dominantFreq >= 0.2 && dominantFreq <= 0.5;
-
-      debugPrint('Breathing analysis:');
-      debugPrint('- Breath cycles: $breathCycles');
-      debugPrint('- Average interval: ${avgInterval.toStringAsFixed(2)}s');
-      debugPrint('- Regular pattern: $regularPattern');
-      debugPrint('- Frequency in range: $inFrequencyRange');
-
-      return regularPattern && inFrequencyRange;
+      debugPrint('Breathing analysis: breathCycles=$breathCycles, '
+          'avgInterval=${avgInterval.toStringAsFixed(2)}, '
+          'regular=$regularPattern, frequencyOk=$frequencyOk');
+      return regularPattern && frequencyOk;
     }
-
     return false;
   } catch (e) {
     debugPrint('Error checking breathing pattern: $e');
     return false;
+  }
+}
+
+// Top-level function to analyze audio (replacing _analyzeAudioInIsolate)
+Future<SleepSoundType?> analyzeAudio(AudioAnalysisData data) async {
+  try {
+    if (data.samples.length < FFT_SIZE) return null;
+    final samples = data.samples.length > FFT_SIZE
+        ? data.samples.sublist(data.samples.length - FFT_SIZE)
+        : data.samples;
+    final magnitudes = await computeFFT(samples);
+    if (magnitudes.isEmpty) return null;
+    final dominantFreq = findDominantFrequency(magnitudes);
+
+    final results = await Future.wait([
+      Future(() => checkSnoringPattern(magnitudes)),
+      Future(() => hasVoicePattern(magnitudes)),
+      Future(() => checkBreathingPattern(magnitudes, dominantFreq)),
+    ]);
+
+    if (results[0]) return SleepSoundType.snoring;
+    if (results[1]) return SleepSoundType.talking;
+    if (results[2]) return SleepSoundType.breathing;
+    return null;
+  } catch (e) {
+    debugPrint('Error in audio analysis: $e');
+    return null;
   }
 }

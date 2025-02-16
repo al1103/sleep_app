@@ -38,7 +38,9 @@ class AIRepositoryImpl implements AIRepository {
 
   @override
   Future<AIImageResponse> getImageAnalysis(
-      String imageBase64, String prompt,) async {
+    String imageBase64,
+    String prompt,
+  ) async {
     try {
       final response = await _apiService.requestPost(
         '/ai/image-prompt',
