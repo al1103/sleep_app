@@ -182,22 +182,31 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final timePickerSize = screenHeight * 0.35; // 35% of screen height
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xFF141925),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildTimePicker(),
-                const SizedBox(height: 16),
-                _buildSleepInfo(),
-                const SizedBox(height: 16),
-                _buildButtons(),
-              ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: timePickerSize,
+                    child: _buildTimePicker(timePickerSize),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildSleepInfo(),
+                  const SizedBox(height: 4),
+                  _buildButtons(),
+                  const SizedBox(height: 60), // Space for bottom nav bar
+                ],
+              ),
             ),
           ),
         ),
@@ -206,15 +215,15 @@ class _HomePageState extends ConsumerState<HomePage>
     );
   }
 
-  Widget _buildTimePicker() {
+  Widget _buildTimePicker(double size) {
     return Column(
       children: [
         TimePicker(
           initTime: inBedTime,
           endTime: outBedTime,
           disabledRanges: const [],
-          height: 260,
-          width: 260,
+          height: size,
+          width: size,
           onSelectionChange: _updateLabels,
           onSelectionEnd: (start, end, isDisableRange) => debugPrint(
             'onSelectionEnd => init : ${start.h}:${start.m}, end : ${end.h}:${end.m}, isDisableRange: $isDisableRange',
@@ -295,11 +304,11 @@ class _HomePageState extends ConsumerState<HomePage>
           'Thời gian ngủ',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 16, // Reduced from 18
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8), // Reduced from 16
         Text(
           '${NumberFormat('00').format(inBedTime.h)}:${NumberFormat('00').format(inBedTime.m)} - ${NumberFormat('00').format(outBedTime.h)}:${NumberFormat('00').format(outBedTime.m)}',
           style: const TextStyle(
@@ -336,18 +345,18 @@ class _HomePageState extends ConsumerState<HomePage>
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1F2633),
-            fixedSize: const Size(200, 50),
+            fixedSize: const Size(180, 40), // Reduced from 200, 50
           ),
           child: const Text(
             'Auto Sleep',
             style: TextStyle(
               color: Color(0xFF3CDAF7),
-              fontSize: 18,
+              fontSize: 16, // Reduced from 18
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8), // Reduced from 16
         ElevatedButton(
           onPressed: () {
             showDialog<void>(
@@ -416,45 +425,45 @@ class _HomePageState extends ConsumerState<HomePage>
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1F2633),
-            fixedSize: const Size(200, 50),
+            fixedSize: const Size(180, 40), // Reduced from 200, 50
           ),
           child: const Text(
             'Manual Sleep',
             style: TextStyle(
               color: Color(0xFF3CDAF7),
-              fontSize: 18,
+              fontSize: 16, // Reduced from 18
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8), // Reduced from 16
         ElevatedButton(
           onPressed: _isRecording ? _stopRecording : _startRecording,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1F2633),
-            fixedSize: const Size(200, 50),
+            fixedSize: const Size(180, 40), // Reduced from 200, 50
           ),
           child: Text(
             _isRecording ? 'Stop Recording' : 'Start Recording',
             style: const TextStyle(
               color: Color(0xFF3CDAF7),
-              fontSize: 18,
+              fontSize: 16, // Reduced from 18
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8), // Reduced from 16
         ElevatedButton(
           onPressed: _isSetAlarm ? _cancelAlarm : _setAlarm,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1F2633),
-            fixedSize: const Size(200, 50),
+            fixedSize: const Size(180, 40), // Reduced from 200, 50
           ),
           child: Text(
             _isSetAlarm ? 'Stop Alarm' : 'Set Alarm',
             style: const TextStyle(
               color: Color(0xFF3CDAF7),
-              fontSize: 18,
+              fontSize: 16, // Reduced from 18
               fontWeight: FontWeight.bold,
             ),
           ),
