@@ -6,7 +6,7 @@ import 'package:sleep/auth/presentation/pages/sign_in_page.dart';
 import 'package:sleep/auth/presentation/pages/sign_up_page.dart';
 import 'package:sleep/common/routes/route_path.dart';
 import 'package:sleep/home/presentation/pages/home.dart';
-import 'package:sleep/home/presentation/pages/record.dart';
+import 'package:sleep/home/presentation/pages/record/record.dart';
 import 'package:sleep/home/presentation/pages/ring.dart';
 
 part 'app_route.gr.dart';
