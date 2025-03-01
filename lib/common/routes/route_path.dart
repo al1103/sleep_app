@@ -9,6 +9,7 @@ class RoutePath {
 
 // Home
   static const String home = '/home';
+  static const String hometest = '/hometest';
 
   static const String alarmRing = '/alarmRing';
 

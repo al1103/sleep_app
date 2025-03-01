@@ -8,6 +8,7 @@ import 'package:sleep/common/routes/route_path.dart';
 import 'package:sleep/home/presentation/pages/home.dart';
 import 'package:sleep/home/presentation/pages/record/record.dart';
 import 'package:sleep/home/presentation/pages/ring.dart';
+import 'package:sleep/splash/presentation/pages/splash_page.dart';
 
 part 'app_route.gr.dart';
 
@@ -15,10 +16,15 @@ part 'app_route.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
+        // Set splash as initial route
         AutoRoute(
-          page: SignInRoute.page,
+          page: SplashRoute.page,
           path: RoutePath.splash,
           initial: true,
+        ),
+        AutoRoute(
+          page: SignInRoute.page,
+          path: RoutePath.signIn,
         ),
         AutoRoute(
           page: HomeRoute.page,
@@ -37,10 +43,6 @@ class AppRouter extends RootStackRouter {
           path: RoutePath.record,
         ),
         AutoRoute(page: AlarmRingRoute.page, path: RoutePath.alarmRing),
-        RedirectRoute(
-          path: '*',
-          redirectTo: '/',
-        ),
       ];
 }
 
