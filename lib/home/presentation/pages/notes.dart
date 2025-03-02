@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SleepNotesScreen extends StatefulWidget {
-  const SleepNotesScreen({Key? key}) : super(key: key);
+  const SleepNotesScreen({super.key});
 
   @override
   State<SleepNotesScreen> createState() => _SleepNotesScreenState();
@@ -10,11 +10,11 @@ class SleepNotesScreen extends StatefulWidget {
 class _SleepNotesScreenState extends State<SleepNotesScreen> {
   // Sample sleep notes (can be empty to show empty state)
   final List<String> _sleepNotes = [
-    "I had trouble falling asleep last night after drinking coffee late.",
-    "Woke up feeling refreshed after trying the new breathing technique.",
-    "Sleep was interrupted multiple times by noise outside.",
-    "The new pillow seems to be helping with my neck pain.",
-    "Had vivid dreams after eating spicy food for dinner.",
+    'I had trouble falling asleep last night after drinking coffee late.',
+    'Woke up feeling refreshed after trying the new breathing technique.',
+    'Sleep was interrupted multiple times by noise outside.',
+    'The new pillow seems to be helping with my neck pain.',
+    'Had vivid dreams after eating spicy food for dinner.',
   ];
   // Uncomment below and comment out the above list to test the empty state
   // final List<String> _sleepNotes = [];
@@ -45,11 +45,8 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
       body: _buildNotesContent(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: _primaryColor,
+        onPressed: _showAddNoteDialog,
         child: const Icon(Icons.mic),
-        onPressed: () {
-          // Add new sleep note functionality
-          _showAddNoteDialog();
-        },
       ),
     );
   }
@@ -67,7 +64,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "No sleep notes yet",
+                  'No sleep notes yet',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.6),
                     fontSize: 18,
@@ -75,7 +72,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Record your sleep to add notes",
+                  'Record your sleep to add notes',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.4),
                     fontSize: 14,
@@ -84,17 +81,19 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.mic),
-                  label: const Text("Add First Note"),
+                  label: const Text('Add First Note'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () => _showAddNoteDialog(),
+                  onPressed: _showAddNoteDialog,
                 ),
               ],
             ),
@@ -151,7 +150,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                           ),
                         ),
                         subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                          padding: const EdgeInsets.only(top: 8),
                           child: Row(
                             children: [
                               Icon(
@@ -161,7 +160,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                "March ${index + 1}, 2025",
+                                'March ${index + 1}, 2025',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.6),
                                   fontSize: 12,
@@ -174,8 +173,10 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.play_arrow,
-                                  color: Colors.white70),
+                              icon: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white70,
+                              ),
                               onPressed: () {
                                 // Play audio note functionality
                               },
@@ -200,15 +201,15 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
   }
 
   void _showAddNoteDialog() {
-    TextEditingController noteController = TextEditingController();
+    final noteController = TextEditingController();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: _cardColor,
           title: const Text(
-            "Add Sleep Note",
+            'Add Sleep Note',
             style: TextStyle(color: Colors.white),
           ),
           content: Column(
@@ -229,7 +230,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      "Record Audio",
+                      'Record Audio',
                       style: TextStyle(color: Colors.white),
                     ),
                   ],
@@ -241,7 +242,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 style: const TextStyle(color: Colors.white),
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: "Type your sleep note here...",
+                  hintText: 'Type your sleep note here...',
                   hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                   filled: true,
                   fillColor: Colors.black45,
@@ -256,7 +257,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
           actions: [
             TextButton(
               child: Text(
-                "Cancel",
+                'Cancel',
                 style: TextStyle(color: _primaryColor),
               ),
               onPressed: () {
@@ -268,7 +269,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 backgroundColor: _primaryColor,
                 foregroundColor: Colors.white,
               ),
-              child: const Text("Save"),
+              child: const Text('Save'),
               onPressed: () {
                 if (noteController.text.isNotEmpty) {
                   setState(() {
@@ -285,8 +286,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
   }
 
   void _showEditNoteDialog(int index) {
-    TextEditingController noteController =
-        TextEditingController(text: _sleepNotes[index]);
+    final noteController = TextEditingController(text: _sleepNotes[index]);
 
     showDialog(
       context: context,
@@ -294,7 +294,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
         return AlertDialog(
           backgroundColor: _cardColor,
           title: const Text(
-            "Edit Sleep Note",
+            'Edit Sleep Note',
             style: TextStyle(color: Colors.white),
           ),
           content: TextField(
@@ -302,7 +302,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
             style: const TextStyle(color: Colors.white),
             maxLines: 3,
             decoration: InputDecoration(
-              hintText: "Edit your sleep note...",
+              hintText: 'Edit your sleep note...',
               hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
               filled: true,
               fillColor: Colors.black45,
@@ -315,7 +315,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
           actions: [
             TextButton(
               child: Text(
-                "Cancel",
+                'Cancel',
                 style: TextStyle(color: _primaryColor),
               ),
               onPressed: () {
@@ -327,7 +327,7 @@ class _SleepNotesScreenState extends State<SleepNotesScreen> {
                 backgroundColor: _primaryColor,
                 foregroundColor: Colors.white,
               ),
-              child: const Text("Update"),
+              child: const Text('Update'),
               onPressed: () {
                 if (noteController.text.isNotEmpty) {
                   setState(() {

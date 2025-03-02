@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
 
 @RoutePage()
 class SplashPage extends ConsumerStatefulWidget {
@@ -36,20 +35,20 @@ class _SplashPageState extends ConsumerState<SplashPage>
     );
 
     _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
+      begin: 0,
+      end: 1,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeInOut),
-    ));
+      curve: const Interval(0, 0.5, curve: Curves.easeInOut),
+    ),);
 
     _scaleAnimation = Tween<double>(
       begin: 0.8,
-      end: 1.0,
+      end: 1,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic),
-    ));
+      curve: const Interval(0, 0.8, curve: Curves.easeOutCubic),
+    ),);
 
     // Start animation and navigate after delay
     _animationController.forward();
@@ -169,7 +168,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     child: ClipOval(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: Center(
+                        child: const Center(
                           child: Icon(
                             Icons.nights_stay,
                             color: Colors.white,
@@ -244,10 +243,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
 // Shimmer text effect for the app title
 class ShimmerText extends StatefulWidget {
-  final String text;
-  final Color startColor;
-  final Color endColor;
-  final TextStyle textStyle;
 
   const ShimmerText({
     required this.text,
@@ -256,6 +251,10 @@ class ShimmerText extends StatefulWidget {
     required this.textStyle,
     super.key,
   });
+  final String text;
+  final Color startColor;
+  final Color endColor;
+  final TextStyle textStyle;
 
   @override
   State<ShimmerText> createState() => _ShimmerTextState();
@@ -309,18 +308,18 @@ class _ShimmerTextState extends State<ShimmerText>
 
 // Helper class for shimmer animation
 class SlidingGradientTransform extends GradientTransform {
-  final double slidePercent;
 
   const SlidingGradientTransform({
     required this.slidePercent,
   });
+  final double slidePercent;
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
     return Matrix4.translationValues(
       bounds.width * (slidePercent - 0.5) * 2,
-      0.0,
-      0.0,
+      0,
+      0,
     );
   }
 }

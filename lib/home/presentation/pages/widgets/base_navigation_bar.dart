@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sleep/home/presentation/controller/bottom_navigation_bar_controller.dart';
+import 'package:sleep/shared/app_contans.dart';
 
 class BaseNavigationBar extends ConsumerWidget {
   const BaseNavigationBar({super.key});
@@ -11,12 +12,12 @@ class BaseNavigationBar extends ConsumerWidget {
     final navigateState = ref.watch(bottomNavigationBarControllerProvider);
 
     // Define app color scheme
-    final Color primaryColor = const Color(0xFF6366F1);
-    final Color darkBackgroundColor = const Color(0xFF0F1120);
-    final Color activeIconColor = const Color(0xFF6366F1);
-    final Color inactiveIconColor = Colors.white54;
+    const primaryColor = Color(0xFF6366F1);
+    const darkBackgroundColor = Color(0xFF0F1120);
+    const activeIconColor = Color(0xFF6366F1);
+    const inactiveIconColor = Colors.white54;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: darkBackgroundColor.withOpacity(0.95),
         borderRadius: const BorderRadius.only(
@@ -48,59 +49,65 @@ class BaseNavigationBar extends ConsumerWidget {
               _buildNavItem(
                 icon: Icons.nightlight_rounded,
                 label: 'Sleep',
-                isActive: navigateState == 0,
+                isActive: navigateState == BottomNavigationEnumType.home,
                 activeColor: activeIconColor,
                 inactiveColor: inactiveIconColor,
                 onTap: () {
-                  // ref
-                  //     .read(bottomNavigationBarControllerProvider.notifier)
-                  //     .state = 0;
-                  context.router.pushNamed('/home');
+                  // Only navigate if not already on this tab
+                  if (navigateState != BottomNavigationEnumType.home) {
+                    ref
+                        .read(bottomNavigationBarControllerProvider.notifier)
+                        .state = BottomNavigationEnumType.home;
+                    context.router.pushNamed('/home');
+                  }
                 },
               ),
               _buildNavItem(
                 icon: Icons.insert_chart_rounded,
                 label: 'Stats',
-                isActive: navigateState == 1,
+                isActive: navigateState == BottomNavigationEnumType.stats,
                 activeColor: activeIconColor,
                 inactiveColor: inactiveIconColor,
                 onTap: () {
-                  // ref
-                  //     .read(bottomNavigationBarControllerProvider.notifier)
-                  //     .state = 1;
-                  context.router.pushNamed('/stats');
+                  // Only navigate if not already on this tab
+                  if (navigateState != BottomNavigationEnumType.stats) {
+                    ref
+                        .read(bottomNavigationBarControllerProvider.notifier)
+                        .state = BottomNavigationEnumType.stats;
+                    context.router.pushNamed('/stats');
+                  }
                 },
               ),
-              const SizedBox(width: 10),
-              _buildCenterButton(
-                context: context,
-                color: primaryColor,
-              ),
-              const SizedBox(width: 10),
               _buildNavItem(
                 icon: Icons.spa_rounded,
                 label: 'Relax',
-                isActive: navigateState == 2,
+                isActive: navigateState == BottomNavigationEnumType.relax,
                 activeColor: activeIconColor,
                 inactiveColor: inactiveIconColor,
                 onTap: () {
-                  // ref
-                  //     .read(bottomNavigationBarControllerProvider.notifier)
-                  //     .state = 2;
-                  context.router.pushNamed('/relax');
+                  // Only navigate if not already on this tab
+                  if (navigateState != BottomNavigationEnumType.relax) {
+                    ref
+                        .read(bottomNavigationBarControllerProvider.notifier)
+                        .state = BottomNavigationEnumType.relax;
+                    context.router.pushNamed('/relax');
+                  }
                 },
               ),
               _buildNavItem(
                 icon: Icons.person_rounded,
                 label: 'Profile',
-                isActive: navigateState == 3,
+                isActive: navigateState == BottomNavigationEnumType.profile,
                 activeColor: activeIconColor,
                 inactiveColor: inactiveIconColor,
                 onTap: () {
-                  // ref
-                  //     .read(bottomNavigationBarControllerProvider.notifier)
-                  //     .state = 3;
-                  context.router.pushNamed('/profile');
+                  // Only navigate if not already on this tab
+                  if (navigateState != BottomNavigationEnumType.profile) {
+                    ref
+                        .read(bottomNavigationBarControllerProvider.notifier)
+                        .state = BottomNavigationEnumType.profile;
+                    context.router.pushNamed('/profile');
+                  }
                 },
               ),
             ],
@@ -121,56 +128,53 @@ class BaseNavigationBar extends ConsumerWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isActive ? activeColor.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isActive ? activeColor : inactiveColor,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
+      child: AnimationConfiguration(
+        isActive: isActive,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isActive ? activeColor.withOpacity(0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
                 color: isActive ? activeColor : inactiveColor,
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                size: 24,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isActive ? activeColor : inactiveColor,
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildCenterButton({
-    required BuildContext context,
-    required Color color,
-  }) {
-    return SizedBox(
-      height: 60,
-      width: 60,
-      child: FloatingActionButton(
-        onPressed: () {
-          context.router.pushNamed('/record');
-        },
-        backgroundColor: color,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        child: const Icon(
-          Icons.mic,
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
-    );
+// Optional animation helper class
+class AnimationConfiguration extends StatelessWidget {
+
+  const AnimationConfiguration({
+    required this.isActive,
+    required this.child,
+    super.key,
+  });
+  final bool isActive;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
   }
 }

@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound_platform_interface/flutter_sound_platform_interface.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:convert';
-import 'dart:io';
 
 @RoutePage()
 class RecordPage extends StatefulWidget {
@@ -24,13 +24,6 @@ enum SoundCategory {
 }
 
 class SoundRecord {
-  final String filePath;
-  final String timestamp;
-  final double maxDecibel;
-  final double averageDecibel;
-  final String category;
-  final String description;
-
   SoundRecord({
     required this.filePath,
     required this.timestamp,
@@ -40,15 +33,6 @@ class SoundRecord {
     required this.description,
   });
 
-  Map<String, dynamic> toJson() => {
-        'filePath': filePath,
-        'timestamp': timestamp,
-        'maxDecibel': maxDecibel,
-        'averageDecibel': averageDecibel,
-        'category': category,
-        'description': description,
-      };
-
   factory SoundRecord.fromJson(Map<String, dynamic> json) => SoundRecord(
         filePath: json['filePath'] as String,
         timestamp: json['timestamp'] as String,
@@ -57,25 +41,30 @@ class SoundRecord {
         category: json['category'] as String,
         description: json['description'] as String,
       );
+  final String filePath;
+  final String timestamp;
+  final double maxDecibel;
+  final double averageDecibel;
+  final String category;
+  final String description;
+
+  Map<String, dynamic> toJson() => {
+        'filePath': filePath,
+        'timestamp': timestamp,
+        'maxDecibel': maxDecibel,
+        'averageDecibel': averageDecibel,
+        'category': category,
+        'description': description,
+      };
 }
 
 // Add new model class for periodic sound measurements
 class SoundMeasurement {
-  final String time;
-  final double db;
-  final String event;
-
   SoundMeasurement({
     required this.time,
     required this.db,
     required this.event,
   });
-
-  Map<String, dynamic> toJson() => {
-        'time': time,
-        'db': double.parse(db.toStringAsFixed(1)),
-        'event': event,
-      };
 
   factory SoundMeasurement.fromJson(Map<String, dynamic> json) =>
       SoundMeasurement(
@@ -83,6 +72,15 @@ class SoundMeasurement {
         db: (json['db'] as num).toDouble(),
         event: json['event'] as String,
       );
+  final String time;
+  final double db;
+  final String event;
+
+  Map<String, dynamic> toJson() => {
+        'time': time,
+        'db': double.parse(db.toStringAsFixed(1)),
+        'event': event,
+      };
 }
 
 class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
@@ -96,10 +94,9 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
   bool _isRecorderInitialized = false;
   bool _isPlayerInitialized = false;
   static const double LIGHT_SOUND_THRESHOLD =
-      30.0; // Light sleep talking, movement
-  static const double MEDIUM_SOUND_THRESHOLD = 40.0; // Clear talking, snoring
-  static const double LOUD_SOUND_THRESHOLD =
-      50.0; // Coughing, laughing, shouting
+      30; // Light sleep talking, movement
+  static const double MEDIUM_SOUND_THRESHOLD = 40; // Clear talking, snoring
+  static const double LOUD_SOUND_THRESHOLD = 50; // Coughing, laughing, shouting
 
   // Sound categories
 
@@ -107,29 +104,29 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
   final Map<String, SoundCategory> _soundCategories = {};
   // Variables to monitor sound intensity
   StreamSubscription<RecordingDisposition>? _recorderSubscription;
-  double _currentDecibel = 0.0;
+  double _currentDecibel = 0;
   Timer? _analysisTimer;
-  List<double> _soundBuffer = [];
-  static const double ABNORMAL_THRESHOLD = 65.0;
+  final List<double> _soundBuffer = [];
+  static const double ABNORMAL_THRESHOLD = 65;
   static const int BUFFER_DURATION = 5;
   String? _currentRecordingPath;
 
   // Add new variables for audio visualization
-  List<double> _recentDecibels = [];
+  final List<double> _recentDecibels = [];
   static const int MAX_POINTS = 50; // Number of points to display on graph
-  double _maxDecibel = 0.0;
-  double _minDecibel = 160.0;
+  double _maxDecibel = 0;
+  double _minDecibel = 160;
 
   // Add new variable to store metadata
-  List<SoundRecord> _recordMetadata = [];
+  final List<SoundRecord> _recordMetadata = [];
 
   // Add new variables
   Timer? _periodicMeasurementTimer;
-  List<SoundMeasurement> _periodicMeasurements = [];
+  final List<SoundMeasurement> _periodicMeasurements = [];
   static const int MEASUREMENT_INTERVAL = 5; // seconds
 
   // Add these variables to RecordPageState
-  List<SoundMeasurement> _currentSessionMeasurements = [];
+  final List<SoundMeasurement> _currentSessionMeasurements = [];
   Timer? _measurementTimer;
   static const measurementInterval = Duration(seconds: 5);
 
@@ -164,7 +161,7 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
 
   Future<void> _initializeAll() async {
     try {
-      Map<Permission, PermissionStatus> statuses = await [
+      final statuses = await [
         Permission.microphone,
         Permission.storage,
       ].request();
@@ -177,7 +174,7 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
       } else {
         _logger.e('Microphone permission denied');
         if (mounted) {
-          showDialog(
+          await showDialog(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Quyền truy cập'),
@@ -214,10 +211,14 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
 
       _isRecorderInitialized = true;
       _logger.i(
-          'Recorder initialized successfully. Status: ${_recorder.isRecording}');
+        'Recorder initialized successfully. Status: ${_recorder.isRecording}',
+      );
     } catch (e, stackTrace) {
-      _logger.e('Error initializing recorder: $e',
-          error: e, stackTrace: stackTrace);
+      _logger.e(
+        'Error initializing recorder: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
       _isRecorderInitialized = false;
       rethrow;
     }
@@ -261,12 +262,10 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
         toFile: _currentRecordingPath,
         codec: Codec.pcm16WAV,
         sampleRate: 44100,
-        numChannels: 1,
-        bitRate: 16000,
       );
 
       // Thêm delay nhỏ để đảm bảo recorder đã start
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       // Update the recorder subscription in _startRecording method
       _recorderSubscription?.cancel();
@@ -275,9 +274,10 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
           if (event.decibels != null) {
             // Raw decibel values are typically negative, from -160 to 0
             // Convert to positive range 0-100 for better visualization
-            double rawDB = event.decibels!;
+            final rawDB = event.decibels!;
             // Normalize to 0-100 range
-            double normalizedDB = ((rawDB + 160) * 100 / 160).clamp(0, 100);
+            final normalizedDB =
+                ((rawDB + 160) * 100 / 160).clamp(0, 100).toDouble();
 
             setState(() {
               // Store raw dB value for display
@@ -310,7 +310,7 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
       // Khởi động timer phân tích âm thanh
       _analysisTimer?.cancel();
       _analysisTimer = Timer.periodic(
-        Duration(seconds: BUFFER_DURATION),
+        const Duration(seconds: BUFFER_DURATION),
         (timer) => _analyzeSound(),
       );
 
@@ -324,8 +324,11 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
 
       _logger.i('Recording started successfully');
     } catch (e, stackTrace) {
-      _logger.e('Error in startRecording: $e',
-          error: e, stackTrace: stackTrace);
+      _logger.e(
+        'Error in startRecording: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
       setState(() => _isRecording = false);
       rethrow;
     }
@@ -334,7 +337,7 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
   void _analyzeSound() {
     if (_soundBuffer.isEmpty) return;
 
-    double averageDecibel =
+    final averageDecibel =
         _soundBuffer.reduce((a, b) => a + b) / _soundBuffer.length;
     _logger.i('Average decibel over buffer: $averageDecibel dB');
 
@@ -509,7 +512,7 @@ class RecordPageState extends State<RecordPage> with WidgetsBindingObserver {
       final file = File('${directory.path}/sound_measurements.json');
 
       if (await file.exists()) {
-        final String contents = await file.readAsString();
+        final contents = await file.readAsString();
         final fileSize = await file.length();
         return '''
 Measurements file:
@@ -582,7 +585,7 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
       final directory = await getApplicationDocumentsDirectory();
       final file = File('${directory.path}/sound_measurements.json');
 
-      final List<Map<String, dynamic>> jsonList =
+      final jsonList =
           _currentSessionMeasurements.map((m) => m.toJson()).toList();
 
       await file
@@ -628,7 +631,7 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 ElevatedButton(
@@ -638,7 +641,9 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isRecording ? Colors.red : Colors.blue,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
                   ),
                   child: Text(
                     _isRecording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm',
@@ -661,7 +666,7 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
                       ),
                       Container(
                         height: 150,
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: CustomPaint(
                           painter: AudioLevelPainter(
                             levels: _recentDecibels,
@@ -710,7 +715,7 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Thời gian: ${DateTime.parse(_recordMetadata[index].timestamp).toString()}',
+                        'Thời gian: ${DateTime.parse(_recordMetadata[index].timestamp)}',
                         style: const TextStyle(fontSize: 12),
                       ),
                       Text(
@@ -765,10 +770,9 @@ Last measurement: ${_periodicMeasurements.isNotEmpty ? _periodicMeasurements.las
 }
 
 class AudioLevelPainter extends CustomPainter {
+  AudioLevelPainter({required this.levels, required this.maxLevel});
   final List<double> levels;
   final double maxLevel;
-
-  AudioLevelPainter({required this.levels, required this.maxLevel});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -784,9 +788,9 @@ class AudioLevelPainter extends CustomPainter {
 
     // Draw the waveform
     final path = Path();
-    final double widthStep = size.width / (levels.length - 1);
+    final widthStep = size.width / (levels.length - 1);
 
-    for (int i = 0; i < levels.length; i++) {
+    for (var i = 0; i < levels.length; i++) {
       final x = i * widthStep;
       // Use normalized values (0-100) for visualization
       final y = size.height - (levels[i] / 100) * size.height;
@@ -820,7 +824,7 @@ class AudioLevelPainter extends CustomPainter {
       ..strokeWidth = 1.0;
 
     // Draw horizontal grid lines
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       final y = i * (size.height / 10);
       canvas.drawLine(
         Offset(0, y),
@@ -830,7 +834,7 @@ class AudioLevelPainter extends CustomPainter {
     }
 
     // Draw vertical grid lines
-    for (int i = 0; i <= 10; i++) {
+    for (var i = 0; i <= 10; i++) {
       final x = i * (size.width / 10);
       canvas.drawLine(
         Offset(x, 0),

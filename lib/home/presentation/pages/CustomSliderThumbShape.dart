@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 
 class CustomSliderThumbShape extends SliderComponentShape {
-  final double thumbRadius;
-  final int quality;
 
   const CustomSliderThumbShape({
     required this.thumbRadius,
     required this.quality,
   });
+  final double thumbRadius;
+  final int quality;
 
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) {
@@ -30,7 +30,7 @@ class CustomSliderThumbShape extends SliderComponentShape {
     required double textScaleFactor,
     required Size sizeWithOverflow,
   }) {
-    final Canvas canvas = context.canvas;
+    final canvas = context.canvas;
 
     final fillPaint = Paint()
       ..color = sliderTheme.thumbColor!
@@ -46,7 +46,7 @@ class CustomSliderThumbShape extends SliderComponentShape {
     canvas.drawCircle(center, thumbRadius, borderPaint);
 
     // Draw emoji based on quality
-    TextPainter textPainter = TextPainter(
+    final textPainter = TextPainter(
       text: TextSpan(
         text: _getEmoji(),
         style: TextStyle(

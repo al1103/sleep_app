@@ -1,13 +1,7 @@
 // Shimmer text effect for the app title
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ShimmerText extends StatefulWidget {
-  final String text;
-  final Color startColor;
-  final Color endColor;
-  final TextStyle textStyle;
-
   const ShimmerText({
     required this.text,
     required this.startColor,
@@ -15,6 +9,10 @@ class ShimmerText extends StatefulWidget {
     required this.textStyle,
     super.key,
   });
+  final String text;
+  final Color startColor;
+  final Color endColor;
+  final TextStyle textStyle;
 
   @override
   State<ShimmerText> createState() => _ShimmerTextState();
@@ -69,18 +67,17 @@ class _ShimmerTextState extends State<ShimmerText>
 
 // Helper class for shimmer animation
 class SlidingGradientTransform extends GradientTransform {
-  final double slidePercent;
-
   const SlidingGradientTransform({
     required this.slidePercent,
   });
+  final double slidePercent;
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
     return Matrix4.translationValues(
       bounds.width * (slidePercent - 0.5) * 2,
-      0.0,
-      0.0,
+      0,
+      0,
     );
   }
 }

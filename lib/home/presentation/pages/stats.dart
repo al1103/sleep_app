@@ -1,14 +1,16 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class SleepStatsScreen extends StatefulWidget {
-  const SleepStatsScreen({Key? key}) : super(key: key);
+@RoutePage()
+class StatsPage extends StatefulWidget {
+  const StatsPage({super.key});
 
   @override
-  State<SleepStatsScreen> createState() => _SleepStatsScreenState();
+  State<StatsPage> createState() => _StatsPageState();
 }
 
-class _SleepStatsScreenState extends State<SleepStatsScreen> {
+class _StatsPageState extends State<StatsPage> {
   // Colors
   final Color _cardColor = const Color(0xFF1E1F23);
   final Color _primaryColor = const Color(0xFF6C63FF);
@@ -34,7 +36,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('Sleep Statistics',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_month, color: Colors.white),
@@ -75,14 +77,14 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Sleep Score',
                   style: TextStyle(
                     color: Colors.white,
@@ -126,7 +128,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         '82',
                         style: TextStyle(
                           color: Colors.white,
@@ -168,14 +170,14 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Weekly Overview',
                   style: TextStyle(
                     color: Colors.white,
@@ -221,7 +223,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildStatItem(
-                    'Avg. Duration', '7.2h', Icons.timelapse_outlined),
+                    'Avg. Duration', '7.2h', Icons.timelapse_outlined,),
                 _buildStatItem('Efficiency', '87%', Icons.speed_outlined),
                 _buildStatItem('Goal Days', '4/7', Icons.check_circle_outline),
               ],
@@ -238,14 +240,14 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Sleep Insights',
                   style: TextStyle(
                     color: Colors.white,
@@ -298,8 +300,8 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: _weeklyStats.entries.map((entry) {
-        final double percentage = (entry.value / 12) * 100;
-        final bool isToday =
+        final percentage = (entry.value / 12) * 100;
+        final isToday =
             entry.key == DateFormat('E').format(DateTime.now()).substring(0, 3);
 
         return Column(
@@ -313,10 +315,8 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    isToday ? _primaryColor : _primaryColor.withOpacity(0.5),
-                    isToday
-                        ? _primaryColor.withOpacity(0.7)
-                        : _primaryColor.withOpacity(0.3),
+                    if (isToday) _primaryColor else _primaryColor.withOpacity(0.5),
+                    if (isToday) _primaryColor.withOpacity(0.7) else _primaryColor.withOpacity(0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -355,7 +355,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -364,7 +364,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white60,
             fontSize: 12,
           ),
@@ -408,7 +408,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -417,7 +417,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                   ),
@@ -435,7 +435,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
       children: [
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -444,7 +444,7 @@ class _SleepStatsScreenState extends State<SleepStatsScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white60,
             fontSize: 14,
           ),

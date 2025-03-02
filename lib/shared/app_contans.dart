@@ -1,1 +1,1 @@
-enum BottomNavigationEnumType { home, analytics, profile }
+enum BottomNavigationEnumType { home, stats, relax, profile }

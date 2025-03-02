@@ -15,7 +15,7 @@ class SplashNotifier extends StateNotifier<SplashState> {
       state = SplashState.initializing;
 
       // Simulate initialization delay for demo purposes
-      await Future.delayed(const Duration(milliseconds: 2500));
+      await Future.delayed(const Duration(milliseconds: 2000));
 
       // Here you would typically:
       // 1. Check if the user is logged in
@@ -41,10 +41,10 @@ final splashProvider =
 
 // Optional: Create a provider for tracking initialization progress
 class InitProgress {
-  final double progress;
-  final String message;
 
   InitProgress({this.progress = 0.0, this.message = 'Loading...'});
+  final double progress;
+  final String message;
 }
 
 final initProgressProvider = StateProvider<InitProgress>((ref) {

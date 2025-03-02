@@ -45,7 +45,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   // Sleep quality tracking
   int _sleepQuality = 5; // 1-10 scale
-  List<String> _sleepNotes = [];
+  final List<String> _sleepNotes = [];
 
   // UI colors - Enhanced modern color palette
   final Color _primaryColor = const Color(0xFF6366F1); // Modern indigo
@@ -169,7 +169,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
           setState(() {
             _sleepNotes.add(
-                'Recording saved: ${DateFormat('MMM dd, HH:mm').format(DateTime.now())}');
+                'Recording saved: ${DateFormat('MMM dd, HH:mm').format(DateTime.now())}',);
           });
 
           _showSnackBar('Recording saved successfully', _accentColor);
@@ -214,7 +214,7 @@ class _HomePageState extends ConsumerState<HomePage>
       warningNotificationOnKill: Platform.isIOS,
       notificationSettings: NotificationSettings(
         title: 'Time to Wake Up',
-        body: 'Rise and shine! It\'s ${DateFormat('HH:mm').format(alarmTime)}',
+        body: "Rise and shine! It's ${DateFormat('HH:mm').format(alarmTime)}",
         stopButton: 'Stop Alarm',
         icon: 'notification_icon',
       ),
@@ -226,7 +226,7 @@ class _HomePageState extends ConsumerState<HomePage>
       });
 
       _showSnackBar('Alarm set for ${DateFormat('HH:mm').format(alarmTime)}',
-          _accentColor);
+          _accentColor,);
       debugPrint('Alarm set successfully');
     });
   }
@@ -287,8 +287,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 140.0,
-      floating: false,
+      expandedHeight: 140,
       pinned: true,
       backgroundColor: _darkBackgroundColor,
       elevation: 0,
@@ -405,7 +404,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   ),
                   Text(
                     DateFormat('MMMM d, yyyy').format(DateTime.now()),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -419,11 +418,11 @@ class _HomePageState extends ConsumerState<HomePage>
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.calendar_month, color: Colors.white),
+          icon: const Icon(Icons.calendar_month, color: Colors.white),
           onPressed: () {},
         ),
         IconButton(
-          icon: Icon(Icons.settings, color: Colors.white),
+          icon: const Icon(Icons.settings, color: Colors.white),
           onPressed: () {},
         ),
       ],
@@ -475,7 +474,7 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   Widget _buildSleepSummaryCard() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -499,7 +498,7 @@ class _HomePageState extends ConsumerState<HomePage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -509,8 +508,8 @@ class _HomePageState extends ConsumerState<HomePage>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Tonight\'s Sleep',
+                        const Text(
+                          "Tonight's Sleep",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 22,
@@ -531,7 +530,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       onTap: _isSetAlarm ? _cancelAlarm : _setAlarm,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                            horizontal: 16, vertical: 8,),
                         decoration: BoxDecoration(
                           color: _isSetAlarm
                               ? Colors.white.withOpacity(0.25)
@@ -550,7 +549,7 @@ class _HomePageState extends ConsumerState<HomePage>
                               _isSetAlarm
                                   ? '${NumberFormat('00').format(outBedTime.h)}:${NumberFormat('00').format(outBedTime.m)}'
                                   : 'No Alarm',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -567,7 +566,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildSummaryItem(
-                      "Bedtime",
+                      'Bedtime',
                       "${NumberFormat('00').format(inBedTime.h)}:${NumberFormat('00').format(inBedTime.m)}",
                       Icons.nightlight_outlined,
                     ),
@@ -577,7 +576,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       color: Colors.white.withOpacity(0.2),
                     ),
                     _buildSummaryItem(
-                      "Wake Up",
+                      'Wake Up',
                       "${NumberFormat('00').format(outBedTime.h)}:${NumberFormat('00').format(outBedTime.m)}",
                       Icons.wb_sunny_outlined,
                     ),
@@ -587,7 +586,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       color: Colors.white.withOpacity(0.2),
                     ),
                     _buildSummaryItem(
-                      "Duration",
+                      'Duration',
                       "${NumberFormat('00').format(intervalBedTime.h)}h ${NumberFormat('00').format(intervalBedTime.m)}m",
                       Icons.timelapse_outlined,
                       highlight: isSleepGoal,
@@ -603,7 +602,7 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   Widget _buildSummaryItem(String title, String value, IconData icon,
-      {bool highlight = false}) {
+      {bool highlight = false,}) {
     return Column(
       children: [
         Container(
@@ -619,7 +618,7 @@ class _HomePageState extends ConsumerState<HomePage>
         const SizedBox(height: 10),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -633,7 +632,7 @@ class _HomePageState extends ConsumerState<HomePage>
             fontSize: 12,
           ),
         ),
-        if (highlight && title == "Duration")
+        if (highlight && title == 'Duration')
           Container(
             margin: const EdgeInsets.only(top: 6),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -641,8 +640,8 @@ class _HomePageState extends ConsumerState<HomePage>
               color: Colors.white.withOpacity(0.3),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
-              "Goal ✓",
+            child: const Text(
+              'Goal ✓',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,
@@ -661,9 +660,8 @@ class _HomePageState extends ConsumerState<HomePage>
       shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -683,7 +681,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
+                    const Text(
                       'Sleep Schedule',
                       style: TextStyle(
                         color: Colors.white,
@@ -694,7 +692,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   ],
                 ),
                 IconButton(
-                  icon: Icon(Icons.edit_outlined, color: Colors.white70),
+                  icon: const Icon(Icons.edit_outlined, color: Colors.white70),
                   onPressed: () {},
                 ),
               ],
@@ -811,11 +809,11 @@ class _HomePageState extends ConsumerState<HomePage>
                         decoration: BoxDecoration(
                           color: _cardColor,
                           shape: BoxShape.circle,
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.black12,
                               blurRadius: 8,
-                              offset: const Offset(0, 2),
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
@@ -836,7 +834,7 @@ class _HomePageState extends ConsumerState<HomePage>
                               Container(
                                 margin: const EdgeInsets.only(top: 4),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
+                                    horizontal: 6, vertical: 2,),
                                 decoration: BoxDecoration(
                                   color: _accentColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
@@ -865,7 +863,7 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 
   Widget _buildQuickActionsCard() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -889,7 +887,7 @@ class _HomePageState extends ConsumerState<HomePage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -919,7 +917,7 @@ class _HomePageState extends ConsumerState<HomePage>
                           ),
                         ),
                         const SizedBox(width: 16),
-                        Text(
+                        const Text(
                           'Quick Actions',
                           style: TextStyle(
                             color: Colors.white,
@@ -932,7 +930,7 @@ class _HomePageState extends ConsumerState<HomePage>
                     // Help icon with tooltip
                     IconButton(
                       icon: Icon(Icons.help_outline,
-                          color: Colors.white.withOpacity(0.6), size: 20),
+                          color: Colors.white.withOpacity(0.6), size: 20,),
                       onPressed: () {
                         // Show tooltip or help dialog
                       },
@@ -1020,7 +1018,7 @@ class _HomePageState extends ConsumerState<HomePage>
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
+          border: Border.all(color: color.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.1),
@@ -1110,7 +1108,7 @@ class _HomePageState extends ConsumerState<HomePage>
       shadowColor: Colors.black.withOpacity(0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1129,7 +1127,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
+                const Text(
                   'Sleep Quality',
                   style: TextStyle(
                     color: Colors.white,
@@ -1170,7 +1168,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   quality: _sleepQuality,
                 ),
                 overlayColor: _getQualityColor().withOpacity(0.2),
-                overlayShape: RoundSliderOverlayShape(overlayRadius: 24),
+                overlayShape: const RoundSliderOverlayShape(),
               ),
               child: AnimatedBuilder(
                 animation: _qualityAnimationController,
@@ -1184,7 +1182,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       setState(() {
                         _sleepQuality = value.toInt();
                       });
-                      _qualityAnimationController.forward(from: 0.0);
+                      _qualityAnimationController.forward(from: 0);
                     },
                   );
                 },
@@ -1300,7 +1298,7 @@ class _HomePageState extends ConsumerState<HomePage>
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,

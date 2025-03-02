@@ -7,7 +7,9 @@ import 'package:sleep/auth/presentation/pages/sign_up_page.dart';
 import 'package:sleep/common/routes/route_path.dart';
 import 'package:sleep/home/presentation/pages/home.dart';
 import 'package:sleep/home/presentation/pages/record/record.dart';
+import 'package:sleep/home/presentation/pages/relax.dart';
 import 'package:sleep/home/presentation/pages/ring.dart';
+import 'package:sleep/home/presentation/pages/stats.dart';
 import 'package:sleep/splash/presentation/pages/splash_page.dart';
 
 part 'app_route.gr.dart';
@@ -41,6 +43,18 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: RecordRoute.page,
           path: RoutePath.record,
+        ),
+        AutoRoute(
+          page: StatsRoute.page,
+          path: RoutePath.stats,
+        ),
+        AutoRoute(
+          page: StatsRoute.page,
+          path: RoutePath.stats,
+        ),
+        AutoRoute(
+          page: RelaxRoute.page,
+          path: RoutePath.releax,
         ),
         AutoRoute(page: AlarmRingRoute.page, path: RoutePath.alarmRing),
       ];
